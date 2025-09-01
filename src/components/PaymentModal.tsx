@@ -27,7 +27,7 @@ const PaymentForm: React.FC<Omit<PaymentModalProps, 'isOpen'>> = ({
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'qr' | 'cash'>('card');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = 'https://uber-backend-ar0c.onrender.com/api';
 
   const handleCardPayment = async (event: React.FormEvent) => {
     event.preventDefault();

@@ -31,7 +31,7 @@ const RideTracking: React.FC = () => {
   const [comment, setComment] = useState('');
   const [rideCompleted, setRideCompleted] = useState(false);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = 'https://uber-backend-ar0c.onrender.com/api';
 
   useEffect(() => {
     const fetchCurrentRide = async () => {

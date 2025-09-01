@@ -41,7 +41,7 @@ const DriverDashboard: React.FC = () => {
   const [isOnline, setIsOnline] = useState(false);
   const [acceptingRide, setAcceptingRide] = useState<string | null>(null);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = 'https://uber-backend-ar0c.onrender.com/api';
 
   useEffect(() => {
     const fetchDriverData = async () => {

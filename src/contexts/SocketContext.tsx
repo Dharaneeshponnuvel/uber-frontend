@@ -24,7 +24,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   useEffect(() => {
     if (user && token) {
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io('https://uber-backend-ar0c.onrender.com');
 
       newSocket.on('connect', () => {
         console.log('Connected to server');
