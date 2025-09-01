@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import axios from 'axios';
 import { User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface CurrentRide {
   id: string;
