@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Car, DollarSign, Star, MapPin, Clock, Check, X, Users, Navigation } from 'lucide-react';
+import { Car, DollarSign, Star, MapPin, Clock, Check, X, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import axios from 'axios';
@@ -30,7 +30,6 @@ const DriverDashboard: React.FC = () => {
   const { user, token } = useAuth();
   const { socket, isConnected } = useSocket();
   const [availableRides, setAvailableRides] = useState<RideRequest[]>([]);
-  const [activeRide, setActiveRide] = useState<any>(null);
   const [stats, setStats] = useState<DriverStats>({
     completedRides: 0,
     totalEarnings: 0,
@@ -41,7 +40,7 @@ const DriverDashboard: React.FC = () => {
   const [isOnline, setIsOnline] = useState(false);
   const [acceptingRide, setAcceptingRide] = useState<string | null>(null);
 
-  const API_BASE_URL = 'https://uber-backend-ar0c.onrender.com/api';
+  const API_BASE_URL = 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchDriverData = async () => {
@@ -51,12 +50,6 @@ const DriverDashboard: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setAvailableRides(ridesResponse.data.rides);
-
-        // Fetch current active ride
-        const currentRideResponse = await axios.get(`${API_BASE_URL}/rides/current`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setActiveRide(currentRideResponse.data.ride);
 
         // Fetch driver stats
         const statsResponse = await axios.get(`${API_BASE_URL}/drivers/stats`, {
@@ -105,11 +98,11 @@ const DriverDashboard: React.FC = () => {
       // Remove the accepted ride from available rides
       setAvailableRides(prev => prev.filter(ride => ride.id !== rideId));
       
-      // Fetch updated active ride
-      const currentRideResponse = await axios.get(`${API_BASE_URL}/rides/current`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setActiveRide(currentRideResponse.data.ride);
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        completedRides: prev.completedRides + 1
+      }));
     } catch (error) {
       console.error('Error accepting ride:', error);
     } finally {
@@ -121,27 +114,6 @@ const DriverDashboard: React.FC = () => {
     setIsOnline(!isOnline);
   };
 
-  const completeRide = async () => {
-    if (!activeRide) return;
-
-    try {
-      await axios.patch(`${API_BASE_URL}/rides/${activeRide.id}/complete`, {
-        finalFare: activeRide.estimated_fare
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setActiveRide(null);
-      
-      // Refresh stats
-      const statsResponse = await axios.get(`${API_BASE_URL}/drivers/stats`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStats(statsResponse.data);
-    } catch (error) {
-      console.error('Error completing ride:', error);
-    }
-  };
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -192,4 +164,150 @@ const DriverDashboard: React.FC = () => {
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <div className="card hover:scale-105 transform transition-all duration-200">
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Car className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">{stats.completedRides}</p>
+                <p className="text-gray-600">Completed Rides</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card hover:scale-105 transform transition-all duration-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">
+                  ${stats.totalEarnings.toFixed(2)}
+                </p>
+                <p className="text-gray-600">Total Earnings</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card hover:scale-105 transform transition-all duration-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 rounded-lg">
+                <Star className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.averageRating > 0 ? stats.averageRating.toFixed(1) : 'N/A'}
+                </p>
+                <p className="text-gray-600">Average Rating</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card hover:scale-105 transform transition-all duration-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">{availableRides.length}</p>
+                <p className="text-gray-600">Available Rides</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Available Ride Requests */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Available Ride Requests</h2>
+            {!isOnline && (
+              <p className="text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm">
+                Go online to see ride requests
+              </p>
+            )}
+          </div>
+
+          {!isOnline ? (
+            <div className="text-center py-8">
+              <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-4">
+                You're currently offline. Toggle your status to start receiving ride requests.
+              </p>
+              <button
+                onClick={toggleOnlineStatus}
+                className="btn-primary"
+              >
+                Go Online
+              </button>
+            </div>
+          ) : availableRides.length === 0 ? (
+            <div className="text-center py-8">
+              <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No ride requests at the moment.</p>
+              <p className="text-sm text-gray-500">New requests will appear here automatically.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {availableRides.map((ride) => (
+                <div
+                  key={ride.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-all duration-200 hover:shadow-md"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                          {ride.ride_type.charAt(0).toUpperCase() + ride.ride_type.slice(1)}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(ride.created_at).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center text-sm">
+                          <MapPin className="h-4 w-4 mr-2 text-green-500" />
+                          <span className="text-gray-700">Pickup: {ride.pickup_address}</span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <MapPin className="h-4 w-4 mr-2 text-red-500" />
+                          <span className="text-gray-700">Drop-off: {ride.dropoff_address}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <span>Distance: {ride.distance} miles</span>
+                        <span>Rider: {ride.rider.first_name} {ride.rider.last_name}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right ml-4">
+                      <p className="text-2xl font-bold text-green-600 mb-2">
+                        ${ride.estimated_fare.toFixed(2)}
+                      </p>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleAcceptRide(ride.id)}
+                          disabled={acceptingRide === ride.id}
+                          className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-colors"
+                        >
+                          {acceptingRide === ride.id ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
+                          ) : (
+                            <Check className="h-4 w-4 mr-1" />
+                          )}
+                          Accept
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DriverDashboard;
