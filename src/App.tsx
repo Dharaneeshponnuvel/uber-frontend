@@ -47,6 +47,10 @@ function App() {
             user?.userType === 'rider' ? <RideBooking /> : <Navigate to="/login" />
           } />
           
+          <Route path="/book-ride" element={
+            user?.userType === 'rider' ? <RideBooking /> : <Navigate to="/login" />
+          } />
+          
           <Route path="/ride-tracking" element={
             user?.userType === 'rider' ? <RideTracking /> : <Navigate to="/login" />
           } />
