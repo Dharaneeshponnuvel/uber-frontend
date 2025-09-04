@@ -14,6 +14,7 @@ interface CurrentRide {
   estimated_fare: number;
   final_fare?: number;
   driver?: {
+    id: string;
     first_name: string;
     last_name: string;
     phone: string;
@@ -96,7 +97,6 @@ const RideTracking: React.FC = () => {
       });
 
       setShowRating(false);
-      // Don't clear current ride, just close rating modal
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
@@ -222,8 +222,7 @@ const RideTracking: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
-              {/* Payment Button for Completed Rides */}
+              {/* Payment Button */}
               {currentRide.status === 'completed' && rideCompleted && (
                 <div className="pt-4 border-t border-gray-200">
                   <button
@@ -235,6 +234,7 @@ const RideTracking: React.FC = () => {
                   </button>
                 </div>
               )}
+            </div>
           </div>
 
           {/* Driver Info */}
@@ -279,10 +279,11 @@ const RideTracking: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
               <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Rate Your Driver</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Rate Your Driver</h3>
                 <button
                   onClick={() => setShowRating(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Close"
                 >
                   <X className="h-5 w-5 text-gray-500" />
                 </button>
