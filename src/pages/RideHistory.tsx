@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, MapPin, Star, Calendar, Filter, DollarSign } from 'lucide-react';
-
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
