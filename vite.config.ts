@@ -8,5 +8,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['lucide-react'],
+    include: ["@react-google-maps/api"],
   },
 });
