@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
@@ -7,7 +7,12 @@ export default defineConfig({
     port: 3000,
   },
   optimizeDeps: {
-    exclude: ['lucide-react'],
-    include: ["@react-google-maps/api"],
+    include: ['@react-google-maps/api'], // force Vite to pre-bundle
+    exclude: ['lucide-react'],           // optional, safe to keep
   },
-});
+  build: {
+    rollupOptions: {
+      external: [], // ensure no accidental externals
+    },
+  },
+})
